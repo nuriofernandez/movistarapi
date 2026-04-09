@@ -1,4 +1,4 @@
-package login
+package hgu
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ func randomSessionId() string {
 	return fmt.Sprint(randInt)
 }
 
-func Login(pass string) (string, error) {
+func (h *HGUSession) Login(pass string) (string, error) {
 	// Generate a random sessionId
 	sessionId := randomSessionId()
 
@@ -48,6 +48,8 @@ func Login(pass string) (string, error) {
 		return "", errors.New(res.Status)
 	}
 
-	// Return original sessionId
+	// Store sessionId and return a successful response
+	h.sessionId = sessionId
+	h.IsValid = true
 	return sessionId, nil
 }

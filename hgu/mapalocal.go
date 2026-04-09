@@ -1,18 +1,24 @@
-package mapalocal
+package hgu
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"regexp"
 )
 
-func GetLocalDevices(sessionId string) (string, error) {
+func (h *HGUSession) LocalMap() (string, error) {
+	// Validate session
+	if !h.IsValid {
+		return "", fmt.Errorf("invalid session, must call Login() first")
+	}
+
 	req, err := http.NewRequest("GET", "http://192.168.1.1/te_mapa_red_local.html", nil)
 	if err != nil {
 		return "", err
 	}
 
-	req.AddCookie(&http.Cookie{Name: "sessionID", Value: sessionId})
+	req.AddCookie(&http.Cookie{Name: "sessionID", Value: h.sessionId})
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
