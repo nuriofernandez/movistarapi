@@ -1,3 +1,3 @@
-module github.com/xXNurioXx/movistar-router-api
+module github.com/xXNurioXx/movistarapi
 
 go 1.20

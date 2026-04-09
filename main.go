@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/xXNurioXx/movistar-router-api/integration/login"
-	"github.com/xXNurioXx/movistar-router-api/integration/mapalocal"
+	"github.com/xXNurioXx/movistarapi/integration/login"
+	"github.com/xXNurioXx/movistarapi/integration/mapalocal"
 )
 
 func main() {
