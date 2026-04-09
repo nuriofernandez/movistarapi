@@ -1,3 +1,3 @@
-module github.com/xXNurioXx/movistarapi
+module github.com/nuriofernandez/movistarapi
 
 go 1.20

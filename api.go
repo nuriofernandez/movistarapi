@@ -1,6 +1,6 @@
 package movistarapi
 
-import "github.com/xXNurioXx/movistarapi/hgu"
+import "github.com/nuriofernandez/movistarapi/hgu"
 
 // HGULogin generates a session to operate the HGU router
 func HGULogin(password string) (hgu.HGUSession, error) {
