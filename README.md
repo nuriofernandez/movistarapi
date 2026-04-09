@@ -10,11 +10,11 @@ This library allows to manipulate the movistar router from GO code.
 
 # Implemented features
 
-- Login(str)
-- Restart()
-- GetLocalDevices()
+- movistarapi.HGULogin(routerPassword string) *HGUSession
+- HGUSession#Restart() string
+- HGUSession#LocalMap() string
 
-## Example CLI:
+## Example usage as a CLI:
 
 ```go
 func main() {
@@ -32,21 +32,21 @@ func main() {
 
 	// Prepare login
 	fmt.Println("Logging in...")
-	sessionId, err := login.Login(password)
+	hgu, err := movistarapi.HGULogin("password123")
 	if err != nil {
 		fmt.Println("Unable to login, " + err.Error())
 		return
 	}
 	fmt.Println("Successfully logged in")
 
-	// Prepare local map retrieve
-	fmt.Println("Retrieving 'Local Map'...")
-	devices, err := mapalocal.GetLocalDevices(sessionId)
+	// Prepare to restart router
+	fmt.Println("Restarting Movistar HGU router...")
+	devices, err := hgu.Restart()
 	if err != nil {
 		return
 	}
 
-	fmt.Println(devices)
+	fmt.Println("Gone!")
 }
 ```
 
@@ -58,6 +58,6 @@ $ movistarcli routerpass123
 Welcome to the Unofficial Movistar router control CLI!
 Logging in...
 Successfully logged in
-Retrieving 'Local Map'...
-[['1','CoolDeviceName','0','192.168.1.XX','WIFI','no','XX:XX:XX:XX:XX:XX']]
+Restarting Movistar HGU router...
+Gone!
 ```
