@@ -13,6 +13,7 @@ This library allows to manipulate the movistar router from GO code.
 - movistarapi.HGULogin(routerPassword string) (*HGUSession, error)
 - HGUSession#Restart() (error)
 - HGUSession#LocalMap() (string, error)
+- HGUSession#OpenPorts() (string, error)
 
 ## Example usage as a CLI:
 
