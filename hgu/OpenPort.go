@@ -33,7 +33,12 @@ type OpenPort struct {
 }
 
 func (o *OpenPort) Serialize() (string, error) {
-	line := fmt.Sprintf("%d,", o.Id)
+	line := ""
+
+	// When creating a port, it must be 0
+	if o.Id != 0 {
+		line += fmt.Sprintf("%d,", o.Id)
+	}
 
 	if o.Name == "" || len(o.Name) > 16 {
 		return "", fmt.Errorf("invalid name: must be between 1 and 16 characters long")
