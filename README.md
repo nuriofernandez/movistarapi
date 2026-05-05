@@ -13,7 +13,33 @@ This library allows to manipulate the movistar router from GO code.
 - movistarapi.HGULogin(routerPassword string) (*HGUSession, error)
 - HGUSession#Restart() (error)
 - HGUSession#LocalMap() (string, error)
-- HGUSession#OpenPorts() (string, error)
+- HGUSession#OpenPorts() ([]OpenPort, error)
+- HGUSession#OpenPort(OpenPort) (error)
+
+## Example usage to open a port
+
+```go
+hgu, err := movistarapi.HGULogin(routerPass)
+if err != nil {
+	fmt.println("invalid pass")
+    return
+}
+ports, err := hgu.OpenPorts(hgu.OpenPort{
+		Name:              "rule-name",
+		Protocol:          hgu.TCP, // TCP/UDP/BOTH
+		Address:           "192.168.1.100",
+		ExternalPortStart: 80,
+		ExternalPortEnd:   0, // optional
+		InternalPortStart: 80,
+		Enabled:           true,
+		Interface:         "ppp0.1",
+})
+if err != nil {
+    fmt.println(err)
+    return
+}
+fmt.println("Port was open!")
+```
 
 ## Example usage as a CLI:
 
