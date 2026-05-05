@@ -32,6 +32,54 @@ type OpenPort struct {
 	Interface         string   `json:"interface"`         // ppp0.1
 }
 
+func (o *OpenPort) Serialize() (string, error) {
+	line := fmt.Sprintf("%d,", o.Id)
+
+	if o.Name == "" || len(o.Name) > 16 {
+		return "", fmt.Errorf("invalid name: must be between 1 and 16 characters long")
+	}
+	line += fmt.Sprintf("%s,", o.Name)
+
+	if o.Protocol != TCP && o.Protocol != UDP && o.Protocol != BOTH {
+		return "", fmt.Errorf("protocol '%s' is not supported, (supported protocols: TCP/UDP/BOTH)", o.Protocol)
+	}
+	line += fmt.Sprintf("%s,", o.Protocol)
+
+	ipv4Pattern := `^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$`
+	re := regexp.MustCompile(ipv4Pattern)
+	if !re.MatchString(o.Address) {
+		return "", fmt.Errorf("address '%s' is not a valid IPv4 address", o.Address)
+	}
+	line += fmt.Sprintf("%s,", o.Address)
+
+	if o.ExternalPortStart <= 0 || o.ExternalPortStart >= 65535 {
+		return "", fmt.Errorf("external port start '%d' is not a valid integer between (1-65535)", o.ExternalPortStart)
+	}
+	line += fmt.Sprintf("%d,", o.ExternalPortStart)
+
+	// This CAN be 0, in case is not defined.
+	if o.ExternalPortEnd < 0 || o.ExternalPortEnd >= 65535 {
+		return "", fmt.Errorf("external port end '%d' is not a valid integer between (0-65535)", o.ExternalPortEnd)
+	}
+	line += fmt.Sprintf("%d,", o.ExternalPortEnd)
+
+	if o.InternalPortStart <= 0 || o.InternalPortStart >= 65535 {
+		return "", fmt.Errorf("internal port start '%d' is not a valid integer between (1-65535)", o.InternalPortStart)
+	}
+	line += fmt.Sprintf("%d,", o.InternalPortStart)
+
+	if o.Enabled {
+		line += "T,"
+	} else {
+		line += "F,"
+	}
+
+	// TODO validate
+	line += o.Interface
+
+	return line, nil
+}
+
 func Parse(line string) (OpenPort, error) {
 	parts := strings.Split(line, ",")
 
@@ -58,18 +106,19 @@ func Parse(line string) (OpenPort, error) {
 	}
 
 	externalPortStart, err := strconv.Atoi(parts[4])
-	if err != nil && (externalPortStart >= 0 && externalPortStart <= 65535) {
-		return OpenPort{}, fmt.Errorf("external port start '%s' is not a valid integer between (0-65535)", parts[4])
+	if err != nil || externalPortStart <= 0 || externalPortStart >= 65535 {
+		return OpenPort{}, fmt.Errorf("external port start '%s' is not a valid integer between (1-65535)", parts[4])
 	}
 
 	externalPortEnd, err := strconv.Atoi(parts[5])
-	if err != nil && (externalPortEnd >= 0 && externalPortEnd <= 65535) {
+	// This CAN be 0, in case is not defined.
+	if err != nil || externalPortEnd < 0 || externalPortEnd >= 65535 {
 		return OpenPort{}, fmt.Errorf("external port end '%s' is not a valid integer between (0-65535)", parts[5])
 	}
 
 	internalPortStart, err := strconv.Atoi(parts[6])
-	if err != nil && (internalPortStart >= 0 && internalPortStart <= 65535) {
-		return OpenPort{}, fmt.Errorf("internal port start '%s' is not a valid integer between (0-65535)", parts[5])
+	if err != nil || internalPortStart <= 0 || internalPortStart >= 65535 {
+		return OpenPort{}, fmt.Errorf("internal port start '%s' is not a valid integer between (1-65535)", parts[5])
 	}
 
 	enabled, err := strconv.ParseBool(parts[7])
