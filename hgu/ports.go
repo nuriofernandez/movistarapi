@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-func (h *HGUSession) OpenPorts() (string, error) {
+func (h *HGUSession) OpenPorts() ([]OpenPort, error) {
 	// Validate session
 	if !h.IsValid {
-		return "", fmt.Errorf("invalid session, must call Login() first")
+		return []OpenPort{}, fmt.Errorf("invalid session, must call Login() first")
 	}
 
 	req, err := http.NewRequest("GET", "http://192.168.1.1/te_ppp_pm.cmd?action=retrieve&type=identifier&sessionKey="+h.sessionId, nil)
 	if err != nil {
-		return "", err
+		return []OpenPort{}, err
 	}
 
 	req.AddCookie(&http.Cookie{Name: "sessionID", Value: h.sessionId})
@@ -23,13 +23,13 @@ func (h *HGUSession) OpenPorts() (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return []OpenPort{}, err
 	}
 
 	// We Read the response body on the line below.
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return []OpenPort{}, err
 	}
 
 	//Convert the body to type string
@@ -40,20 +40,23 @@ func (h *HGUSession) OpenPorts() (string, error) {
 	removeSession := strings.Split(removeScript, "&")[0]
 
 	// Fetch all ids one by one and add them to list string
-	var list string
+	var list []OpenPort
 	for _, id := range strings.Split(removeSession, ",") {
 		s, err := fetchPort(h.sessionId, id)
 		if err != nil {
 			continue
 		}
-		if len(list) != 0 {
-			list += ","
+		openPort, err := Parse(s)
+		if err != nil {
+			// Don't break the flow since it's data coming from the router.
+			fmt.Printf("WARNING: (ignored) unable to parse port '%s' due to '%f'\n", s, err)
+			continue
 		}
-		list += "[" + s + "]"
+		list = append(list, openPort)
 	}
 
 	// Return the list of open ports
-	return "[" + list + "]", nil
+	return list, nil
 }
 
 func fetchPort(sessionId, id string) (string, error) {
