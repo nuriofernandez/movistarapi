@@ -19,12 +19,12 @@ This library allows to manipulate the movistar router from GO code.
 ## Example usage to open a port
 
 ```go
-hgu, err := movistarapi.HGULogin(routerPass)
+hguRouter, err := movistarapi.HGULogin(routerPass)
 if err != nil {
 	fmt.println("invalid pass")
     return
 }
-ports, err := hgu.OpenPorts(hgu.OpenPort{
+ports, err := hguRouter.OpenPorts(hgu.OpenPort{
 		Name:              "rule-name",
 		Protocol:          hgu.TCP, // TCP/UDP/BOTH
 		Address:           "192.168.1.100",
@@ -59,7 +59,7 @@ func main() {
 
 	// Prepare login
 	fmt.Println("Logging in...")
-	hgu, err := movistarapi.HGULogin("password123")
+	hguRouter, err := movistarapi.HGULogin("password123")
 	if err != nil {
 		fmt.Println("Unable to login, " + err.Error())
 		return
@@ -68,7 +68,7 @@ func main() {
 
 	// Prepare to restart router
 	fmt.Println("Restarting Movistar HGU router...")
-	devices, err := hgu.Restart()
+	devices, err := hguRouter.Restart()
 	if err != nil {
 		return
 	}
