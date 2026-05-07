@@ -24,7 +24,7 @@ if err != nil {
 	fmt.println("invalid pass")
     return
 }
-ports, err := hguRouter.OpenPorts(hgu.OpenPort{
+ports, err := hguRouter.OpenPort(hgu.OpenPort{
 		Name:              "rule-name",
 		Protocol:          hgu.TCP, // TCP/UDP/BOTH
 		Address:           "192.168.1.100",
