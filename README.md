@@ -80,6 +80,41 @@ if err != nil {
 fmt.println("NAT rule was disabled and renamed!")
 ```
 
+## Example usage to delete a NAT rule
+
+```go
+hguRouter, err := movistarapi.HGULogin(routerPass)
+if err != nil {
+	fmt.println("invalid pass")
+    return
+}
+
+// Fetch rules and search a rule we want to delete by name
+ports, err := hguRouter.OpenPorts()
+if err != nil {
+    fmt.println(err)
+    return
+}
+var openPort hgu.OpenPort
+for _, existingPort := range ports {
+    if existingPort.Name == "RULE-NAME" {
+        openPort = existingPort
+    }
+}
+if openPort == (hgu.OpenPort{}) {
+    fmt.println(err)
+    return
+}
+
+// Delete the rule with HGUSession#DeletePort(int, string)
+err = hguRouter.DeletePort(openPort.Id, openPort.Interface)
+if err != nil {
+    fmt.println(err)
+    return
+}
+fmt.println("NAT rule was disabled and renamed!")
+```
+
 ## Example usage as a CLI:
 
 ```go
