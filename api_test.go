@@ -148,7 +148,11 @@ func TestHGUSession_UpdatePort(t *testing.T) {
 		t.Fatalf("Open port name should be updated")
 	}
 
-	// TODO Delete the port
+	// Delete the testing port
+	err = hguRouter.DeletePort(openPort.Id, openPort.Interface)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestHGUSession_DeletePort(t *testing.T) {
