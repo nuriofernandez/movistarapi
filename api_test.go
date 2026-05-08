@@ -30,13 +30,14 @@ func TestHGUSession_OpenPort(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	tmpRuleName := "goapi-test-crea"
 	port := hgu.OpenPort{
-		Name:              "test-23",
+		Name:              tmpRuleName,
 		Protocol:          hgu.TCP,
-		Address:           "192.168.1.165",
-		ExternalPortStart: 12315,
+		Address:           "192.168.1.100",
+		ExternalPortStart: 54142,
 		ExternalPortEnd:   0,
-		InternalPortStart: 12312,
+		InternalPortStart: 54142,
 		Enabled:           true,
 		Interface:         "ppp0.1",
 	}
@@ -65,15 +66,23 @@ func TestHGUSession_OpenPort(t *testing.T) {
 	}
 
 	// Check if new port is present
-	found := false
+	var newOpenPort hgu.OpenPort
 	for _, existingPort := range ports {
 		if existingPort.Name == port.Name {
-			found = true
+			newOpenPort = existingPort
 			break
 		}
 	}
-	if !found {
+
+	// Assert it was created
+	if newOpenPort == (hgu.OpenPort{}) {
 		t.Fatalf("After opening the port, was not found on the list of open ports")
+	}
+
+	// Delete the testing port
+	err = hguRouter.DeletePort(newOpenPort.Id, newOpenPort.Interface)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
