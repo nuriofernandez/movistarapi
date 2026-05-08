@@ -16,7 +16,7 @@ This library allows to manipulate the movistar router from GO code.
 - HGUSession#OpenPorts() ([]OpenPort, error)
 - HGUSession#OpenPort(OpenPort) (error)
 
-## Example usage to open a port
+## Example usage to open a port (creating a NAT rule)
 
 ```go
 hguRouter, err := movistarapi.HGULogin(routerPass)
@@ -39,6 +39,45 @@ if err != nil {
     return
 }
 fmt.println("Port was open!")
+```
+
+## Example usage to update a NAT rule
+
+```go
+hguRouter, err := movistarapi.HGULogin(routerPass)
+if err != nil {
+	fmt.println("invalid pass")
+    return
+}
+
+// Fetch rules and search a rule we want to update by name
+ports, err := hguRouter.OpenPorts()
+if err != nil {
+    fmt.println(err)
+    return
+}
+var openPort hgu.OpenPort
+for _, existingPort := range ports {
+    if existingPort.Name == "RULE-NAME" {
+        openPort = existingPort
+    }
+}
+if openPort == (hgu.OpenPort{}) {
+    fmt.println(err)
+    return
+}
+
+// Modify the rule
+openPort.Enabled = false
+openPort.Name = "NEW-RULE-NAME"
+
+// Update the rule with HGUSession#UpdateRule(OpenPort)
+err = hguRouter.UpdatePort(openPort)
+if err != nil {
+    fmt.println(err)
+    return
+}
+fmt.println("NAT rule was disabled and renamed!")
 ```
 
 ## Example usage as a CLI:
