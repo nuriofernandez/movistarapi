@@ -150,3 +150,64 @@ func TestHGUSession_UpdatePort(t *testing.T) {
 
 	// TODO Delete the port
 }
+
+func TestHGUSession_DeletePort(t *testing.T) {
+	hguRouter, err := HGULogin(routerPass)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add a testing port to manipulate it later.
+	tmpRuleName := "goapi-test-del"
+	err = hguRouter.OpenPort(hgu.OpenPort{
+		Name:              tmpRuleName,
+		Protocol:          hgu.TCP,
+		Address:           "192.168.1.100",
+		ExternalPortStart: 54142,
+		ExternalPortEnd:   0,
+		InternalPortStart: 54142,
+		Enabled:           true,
+		Interface:         "ppp0.1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Fetch rules and get the just added rule
+	ports, err := hguRouter.OpenPorts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var openPort hgu.OpenPort
+	for _, existingPort := range ports {
+		if existingPort.Name == tmpRuleName {
+			openPort = existingPort
+		}
+	}
+	if openPort == (hgu.OpenPort{}) {
+		t.Fatalf("Open port not found")
+	}
+
+	err = hguRouter.DeletePort(openPort.Id, openPort.Interface)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Fetch rules and confirm the rule is gone
+	ports, err = hguRouter.OpenPorts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var openPortAfterDelete hgu.OpenPort
+	for _, existingPort := range ports {
+		if existingPort.Name == tmpRuleName {
+			openPortAfterDelete = existingPort
+		}
+	}
+
+	// Assert it's gone
+
+	if openPortAfterDelete != (hgu.OpenPort{}) {
+		t.Fatalf("Open port was found! should be deleted")
+	}
+}
