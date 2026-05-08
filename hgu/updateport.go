@@ -1,0 +1,55 @@
+package hgu
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+func (h *HGUSession) UpdatePort(port OpenPort) error {
+	// Validate session
+	if !h.IsValid {
+		return fmt.Errorf("invalid session, must call Login() first")
+	}
+
+	if port.Id == 0 {
+		return fmt.Errorf("provided OpenPort doesn't contain a record id. Use HGUSession#OpenPorts to obtain the port you want to disable")
+	}
+
+	portValue, err := port.Serialize()
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("GET", "http://192.168.1.1/te_ppp_pm.cmd?action=update&inst="+portValue+"&sessionKey="+h.sessionId, nil)
+	if err != nil {
+		return err
+	}
+
+	req.AddCookie(&http.Cookie{Name: "sessionID", Value: h.sessionId})
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	// We read the response body on the line below.
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	//Convert the body to type string
+	stringBody := string(body)
+	removeScript := strings.Split(stringBody, "</script>\n")[1]
+
+	responseOk := strings.Contains(removeScript, "inst=true")
+	if !responseOk {
+		return fmt.Errorf("failed to perform operation, movistar denied it")
+	}
+
+	// All right!
+	return nil
+}
