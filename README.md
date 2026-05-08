@@ -15,7 +15,8 @@ This library allows to manipulate the movistar router from GO code.
 - HGUSession#LocalMap() (string, error)
 - HGUSession#OpenPorts() ([]OpenPort, error)
 - HGUSession#OpenPort(OpenPort) (error)
-
+- HGUSession#UpdateRule(OpenPort) (error)
+- HGUSession#DeletePort(int, string) (error)
 ## Example usage to open a port (creating a NAT rule)
 
 ```go
