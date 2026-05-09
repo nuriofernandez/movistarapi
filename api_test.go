@@ -1,7 +1,6 @@
 package movistarapi
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -9,20 +8,6 @@ import (
 )
 
 var routerPass = os.Getenv("MOVISTAR_ROUTER_PASS")
-
-func TestEnsureSyntax(t *testing.T) {
-	hguRouter, err := HGULogin(routerPass)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	localMap, err := hguRouter.LocalMap()
-	if err != nil {
-		return
-	}
-
-	fmt.Println(localMap)
-}
 
 func TestHGUSession_OpenPort(t *testing.T) {
 	hguRouter, err := HGULogin(routerPass)
