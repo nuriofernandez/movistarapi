@@ -9,11 +9,11 @@ import (
 )
 
 type ConnectedDevice struct {
-	Unknown1       string
+	Unknown1       string // 1
 	Name           string
-	Unknown2       string
+	Unknown2       string // 0
 	IPAddress      string
-	ConnectionType string
+	ConnectionType string // Cable Ethernet, WIFI
 	OpenPorts      bool
 	MacAddress     string
 }
