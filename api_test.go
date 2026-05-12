@@ -1,13 +1,34 @@
 package movistarapi
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/nuriofernandez/movistarapi/hgu"
 )
 
 var routerPass = os.Getenv("MOVISTAR_ROUTER_PASS")
+
+func TestHGUSession_ListDevices(t *testing.T) {
+	hguRouter, err := HGULogin(routerPass)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	localMap, err := hguRouter.LocalMap()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Assertions
+	if !strings.HasPrefix(localMap[0].IPAddress, "192.") {
+		t.Fatal("IP Address is not starting by 192.")
+	}
+
+	fmt.Println(localMap)
+}
 
 func TestHGUSession_OpenPort(t *testing.T) {
 	hguRouter, err := HGULogin(routerPass)
