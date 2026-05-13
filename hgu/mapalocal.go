@@ -20,7 +20,7 @@ type ConnectedDevice struct {
 
 func ParseConnectedDevice(line string) ConnectedDevice {
 	// Split and clean string parts
-	// '1','emby','0','192.168.1.37','Cable Ethernet','yes','90:2b:34:33:ff:9e'
+	// '1','hostname','0','192.168.1.37','Cable Ethernet','yes','ff:ff:ff:ff:ff:ff'
 	parts := strings.Split(line, ",")
 	for i, v := range parts {
 		parts[i] = strings.Trim(v, "'")
@@ -48,7 +48,7 @@ func (h *HGUSession) LocalMap() ([]ConnectedDevice, error) {
 		return []ConnectedDevice{}, err
 	}
 
-	// Clean response into a flat "'1','emby','0','192.168.1.37','Cable Ethernet','yes','90:2b:34:33:ff:9e'"
+	// Clean response into a flat "'1','hostname','0','192.168.1.37','Cable Ethernet','yes','ff:ff:ff:ff:ff:ff'"
 	trimmed := strings.Trim(body, "[]")
 	reArray := regexp.MustCompile(`\[([^\]]+)\]`)
 	matches := reArray.FindAllStringSubmatch(trimmed, -1)

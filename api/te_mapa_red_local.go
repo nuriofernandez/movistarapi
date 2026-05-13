@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-// LocalMap Produces an array of devices properties [['1','hostname','0','192.168.1.10','Cable Ethernet','yes','FF:FF:FF:FF:FF:FF']]
+// LocalMap Produces an array of devices properties [['1','hostname','0','192.168.1.10','Cable Ethernet','yes','ff:ff:ff:ff:ff:ff']]
 func LocalMap(sessionId string) (string, error) {
 	req, err := http.NewRequest("GET", "http://192.168.1.1/te_mapa_red_local.html", nil)
 	if err != nil {
