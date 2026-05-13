@@ -2,10 +2,10 @@ package hgu
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/nuriofernandez/movistarapi/api"
 )
 
 type ConnectedDevice struct {
@@ -43,36 +43,17 @@ func (h *HGUSession) LocalMap() ([]ConnectedDevice, error) {
 		return []ConnectedDevice{}, fmt.Errorf("invalid session, must call Login() first")
 	}
 
-	req, err := http.NewRequest("GET", "http://192.168.1.1/te_mapa_red_local.html", nil)
+	body, err := api.LocalMap(h.sessionId)
 	if err != nil {
 		return []ConnectedDevice{}, err
 	}
 
-	req.AddCookie(&http.Cookie{Name: "sessionID", Value: h.sessionId})
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return []ConnectedDevice{}, err
-	}
-
-	// We Read the response body on the line below.
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return []ConnectedDevice{}, err
-	}
-
-	//Convert the body to type string
-	sb := string(body)
-	var re = regexp.MustCompile(`(?m)deviceData=(.*)(;\n\nvar gatewa)`)
-
-	// Extract group 1 (deviceData=value)
-	localMapStr := re.FindStringSubmatch(sb)[1]
-	localMapStr = strings.Trim(localMapStr, "[]")
-
+	// Clean response into a flat "'1','emby','0','192.168.1.37','Cable Ethernet','yes','90:2b:34:33:ff:9e'"
+	trimmed := strings.Trim(body, "[]")
 	reArray := regexp.MustCompile(`\[([^\]]+)\]`)
-	matches := reArray.FindAllStringSubmatch(localMapStr, -1)
+	matches := reArray.FindAllStringSubmatch(trimmed, -1)
 
+	// Parse lines into ConnectedDevice struct
 	devices := make([]ConnectedDevice, 0)
 	for _, match := range matches {
 		// match[1]: '1','emby',...
