@@ -26,7 +26,7 @@ func (h *HGUSession) OpenPorts() ([]OpenPort, error) {
 		if err != nil {
 			continue
 		}
-		openPort, err := Parse(s)
+		openPort, err := DeserializeOpenPort(s)
 		if err != nil {
 			// Don't break the flow since it's data coming from the router.
 			fmt.Printf("WARNING: (ignored) unable to parse port '%s' due to '%f'\n", s, err)

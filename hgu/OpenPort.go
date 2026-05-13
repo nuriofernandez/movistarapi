@@ -85,7 +85,7 @@ func (o *OpenPort) Serialize() (string, error) {
 	return line, nil
 }
 
-func Parse(line string) (OpenPort, error) {
+func DeserializeOpenPort(line string) (OpenPort, error) {
 	parts := strings.Split(line, ",")
 
 	id, err := strconv.Atoi(parts[0])
