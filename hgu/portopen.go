@@ -18,7 +18,7 @@ func (h *HGUSession) OpenPort(port OpenPort) error {
 		return err
 	}
 
-	req, err := http.NewRequest("GET", "http://192.168.1.1/te_ppp_pm.cmd?action=create&inst="+portValue+"&sessionKey=1597040752"+h.sessionId, nil)
+	req, err := http.NewRequest("GET", "http://192.168.1.1/te_ppp_pm.cmd?action=create&inst="+portValue+"&sessionKey="+h.sessionId, nil)
 	if err != nil {
 		return err
 	}
