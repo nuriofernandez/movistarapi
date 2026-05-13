@@ -2,9 +2,9 @@ package hgu
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
+
+	"github.com/nuriofernandez/movistarapi/api"
 )
 
 func (h *HGUSession) OpenPorts() ([]OpenPort, error) {
@@ -13,36 +13,16 @@ func (h *HGUSession) OpenPorts() ([]OpenPort, error) {
 		return []OpenPort{}, fmt.Errorf("invalid session, must call Login() first")
 	}
 
-	req, err := http.NewRequest("GET", "http://192.168.1.1/te_ppp_pm.cmd?action=retrieve&type=identifier&sessionKey="+h.sessionId, nil)
+	// Fetch ports Ids from api
+	portsIds, err := api.ListPortsIds(h.sessionId)
 	if err != nil {
 		return []OpenPort{}, err
 	}
-
-	req.AddCookie(&http.Cookie{Name: "sessionID", Value: h.sessionId})
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return []OpenPort{}, err
-	}
-
-	// We Read the response body on the line below.
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return []OpenPort{}, err
-	}
-
-	//Convert the body to type string
-	sb := string(body)
-
-	// Clean results
-	removeScript := strings.Split(sb, "</script>\ninst=")[1]
-	removeSession := strings.Split(removeScript, "&")[0]
 
 	// Fetch all ids one by one and add them to list string
 	var list []OpenPort
-	for _, id := range strings.Split(removeSession, ",") {
-		s, err := fetchPort(h.sessionId, id)
+	for _, id := range strings.Split(portsIds, ",") {
+		s, err := api.FetchPort(h.sessionId, id)
 		if err != nil {
 			continue
 		}
@@ -57,35 +37,4 @@ func (h *HGUSession) OpenPorts() ([]OpenPort, error) {
 
 	// Return the list of open ports
 	return list, nil
-}
-
-func fetchPort(sessionId, id string) (string, error) {
-	req, err := http.NewRequest("GET", "http://192.168.1.1/te_ppp_pm.cmd?action=retrieve&type=instance&id="+id, nil)
-	if err != nil {
-		return "", err
-	}
-
-	req.AddCookie(&http.Cookie{Name: "sessionID", Value: sessionId})
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	// We Read the response body on the line below.
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	//Convert the body to type string
-	sb := string(body)
-
-	// Clean response
-	removeScript := strings.Split(sb, "</script>\ninst=")[1]
-	removeSession := strings.Split(removeScript, "&")[0]
-
-	// return id list
-	return removeSession, nil
 }
