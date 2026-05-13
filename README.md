@@ -15,14 +15,14 @@ This library allows to manipulate the movistar router from GO code.
 - HGUSession#LocalMap() ([]ConnectedDevice, error)
 - HGUSession#OpenPorts() ([]OpenPort, error)
 - HGUSession#OpenPort(OpenPort) (error)
-- HGUSession#UpdateRule(OpenPort) (error)
+- HGUSession#UpdatePort(OpenPort) (error)
 - HGUSession#DeletePort(int, string) (error)
 ## Example usage to open a port (creating a NAT rule)
 
 ```go
 hguRouter, err := movistarapi.HGULogin(routerPass)
 if err != nil {
-	fmt.println("invalid pass")
+	fmt.Println("invalid pass")
     return
 }
 err = hguRouter.OpenPort(hgu.OpenPort{
@@ -36,10 +36,10 @@ err = hguRouter.OpenPort(hgu.OpenPort{
 		Interface:         "ppp0.1",
 })
 if err != nil {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
-fmt.println("Port was open!")
+fmt.Println("Port was open!")
 ```
 
 ## Example usage to update a NAT rule
@@ -47,14 +47,14 @@ fmt.println("Port was open!")
 ```go
 hguRouter, err := movistarapi.HGULogin(routerPass)
 if err != nil {
-	fmt.println("invalid pass")
+	fmt.Println("invalid pass")
     return
 }
 
 // Fetch rules and search a rule we want to update by name
 ports, err := hguRouter.OpenPorts()
 if err != nil {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
 var openPort hgu.OpenPort
@@ -64,7 +64,7 @@ for _, existingPort := range ports {
     }
 }
 if openPort == (hgu.OpenPort{}) {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
 
@@ -72,13 +72,13 @@ if openPort == (hgu.OpenPort{}) {
 openPort.Enabled = false
 openPort.Name = "NEW-RULE-NAME"
 
-// Update the rule with HGUSession#UpdateRule(OpenPort)
+// Update the rule with HGUSession#UpdatePort(OpenPort)
 err = hguRouter.UpdatePort(openPort)
 if err != nil {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
-fmt.println("NAT rule was disabled and renamed!")
+fmt.Println("NAT rule was disabled and renamed!")
 ```
 
 ## Example usage to delete a NAT rule
@@ -86,14 +86,14 @@ fmt.println("NAT rule was disabled and renamed!")
 ```go
 hguRouter, err := movistarapi.HGULogin(routerPass)
 if err != nil {
-	fmt.println("invalid pass")
+	fmt.Println("invalid pass")
     return
 }
 
 // Fetch rules and search a rule we want to delete by name
 ports, err := hguRouter.OpenPorts()
 if err != nil {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
 var openPort hgu.OpenPort
@@ -103,17 +103,17 @@ for _, existingPort := range ports {
     }
 }
 if openPort == (hgu.OpenPort{}) {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
 
 // Delete the rule with HGUSession#DeletePort(int, string)
 err = hguRouter.DeletePort(openPort.Id, openPort.Interface)
 if err != nil {
-    fmt.println(err)
+    fmt.Println(err)
     return
 }
-fmt.println("NAT rule was disabled and renamed!")
+fmt.Println("NAT rule was deleted!")
 ```
 
 ## Example usage as a CLI:
@@ -134,7 +134,7 @@ func main() {
 
 	// Prepare login
 	fmt.Println("Logging in...")
-	hguRouter, err := movistarapi.HGULogin("password123")
+	hguRouter, err := movistarapi.HGULogin(password)
 	if err != nil {
 		fmt.Println("Unable to login, " + err.Error())
 		return
@@ -143,7 +143,7 @@ func main() {
 
 	// Prepare to restart router
 	fmt.Println("Restarting Movistar HGU router...")
-	devices, err := hguRouter.Restart()
+	err = hguRouter.Reboot()
 	if err != nil {
 		return
 	}
